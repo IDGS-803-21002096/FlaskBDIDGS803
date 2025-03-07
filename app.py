@@ -20,7 +20,36 @@ def page_not_found(e):
 @app.route("/")
 @app.route("/index")
 def index():
-	return render_template("index.html")
+	create_form = forms.UserForm2(request.form)
+	alumno=Alumnos.query.all()	#SELECT * FROM alumnos
+	return render_template("index.html", form = create_form, alumnos=alumno)
+
+@app.route("/detalles", methods=["GET","POST"])
+def detalles():
+	create_form=forms.UserForm2(request.form)
+	if request.method=='GET':
+		id=request.args.get('id')
+		# SELECT * FROM alumnos WHERE id == id
+		alum1 = db.session.query(Alumnos).filter(Alumnos.id==id).first()
+		id = request.args.get('id')
+		nombre = alum1.nombre
+		apaterno = alum1.apaterno
+		email = alum1.email
+		return render_template("detalles.html", id=id, nombre=nombre, apaterno=apaterno, email=email)
+
+@app.route("/Alumnos1", methods=["GET","POST"])
+def Alumnos1():
+	create_form=forms.UserForm2(request.form)
+	if request.method=='POST':
+		alum=Alumnos(nombre=create_form.nombre.data,
+		apaterno=create_form.apaterno.data,
+		email=create_form.email.data)
+		#INSERT alumnos() values()
+		db.session.add(alum)
+		db.session.commit()
+		return redirect(url_for('index'))
+		return render_template('Alumnos1.html', form=create_form)
+
 
 if __name__ == '__main__':
 	csrf.init_app(app)
